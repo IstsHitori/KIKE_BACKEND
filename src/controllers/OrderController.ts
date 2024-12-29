@@ -4,8 +4,7 @@ import { Order } from "../models/Order";
 import { IProducts_item } from "../models/Product_item";
 import { IService } from "../models/Service";
 import { Product } from "../models/Product";
-import { Types } from "mongoose";
-import { PRODUCT_ERRORS } from "../utils/errors";
+import { ORDER_ERRORS, PRODUCT_ERRORS } from "../utils/errors";
 
 interface DraftOrder {
   nitCustomer: number;
@@ -47,9 +46,7 @@ export class OrderController {
       for (const item of products) {
         const product = await Product.findById(item.product);
         if (!product) {
-          res
-            .status(404)
-            .json({ msg:PRODUCT_ERRORS.PRODUCT_DOESNT_EXIST});
+          res.status(404).json({ msg: PRODUCT_ERRORS.PRODUCT_DOESNT_EXIST });
           return;
         }
         if (product.stock < item.quantity) {
@@ -75,12 +72,10 @@ export class OrderController {
 
       await order.save();
 
-      res.json({ message: "Order created successfully." });
+      res.send("Orden creada correctamente");
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({ message: "An error occurred while creating the order." });
+      res.status(500).json({ msg: "Ha ocurrido un error al crear la orden" });
     }
   };
 
@@ -89,13 +84,40 @@ export class OrderController {
       const arrayOrders = await Order.find().populate({
         path: "products.product",
         select: "name",
-      });
+      }).populate("client");
 
       res.json({
         orders: arrayOrders,
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+  static registerPartialPaid = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { paymentAmount } = req.body;
+      const searchOrder = await Order.findById(id);
+      if (!searchOrder) {
+        const error = new Error(ORDER_ERRORS.ORDER_NOT_FOUND);
+        res.status(404).json({ msg: error.message });
+        return;
+      }
+
+      searchOrder.paid_amount += paymentAmount;
+      
+      searchOrder.payment_history.push({
+        amount: paymentAmount,
+        payment_method: "efectivo",
+        date: new Date(),
+      });
+      await searchOrder.save();
+      res.send(`Se ha abonado: ${paymentAmount} pesos a la orden.`)
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ msg: "Ha ocurrido un error al registrar el pago parcial" });
     }
   };
 }

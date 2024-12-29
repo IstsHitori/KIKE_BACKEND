@@ -30,7 +30,10 @@ export enum ORDER_ERRORS{
   PRODUCT_IN_SERVICE = "No se puede eliminar este producto porque existe en un servicio.",
   PRODUCT_IN_ORDER = "No se puede eliminar este producto porque existe en una orden de compra.",
   ID_CLIENT_NOT_VALID = "El ID del cliente no es válido.",
-  PRODUCTS_LENGTH = "Error, no hay ni un solo producto a vender"
+  PRODUCTS_LENGTH = "Error, no hay ni un solo producto a vender",
+  ORDER_NOT_FOUND = "Error, no se encontró la orden",
+  ID_ORDER_NOT_VALID = "El ID de la orden no es válida",
+  PAYMENT_AMOUNT_EMPTY = "Error, se debe agregar el monto a abonar"
 }
 export enum CLIENT_ERRORS{
   CLIENT_ALREADY_EXIST = "Este cliente ya existe",

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "../middleware/auth";
 import { OrderController } from "../controllers/OrderController";
 import { handleInputErrors } from "../middleware/validation";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import { CLIENT_ERRORS, ORDER_ERRORS } from "../utils/errors";
 
 const router = Router();
@@ -25,5 +25,15 @@ router.post(
   handleInputErrors,
   authenticate,
   OrderController.createOrder
+);
+router.post(
+  "/register-paid/:id",
+  param("id").isMongoId().withMessage(ORDER_ERRORS.ID_ORDER_NOT_VALID),
+  body("paymentAmount")
+    .notEmpty()
+    .withMessage(ORDER_ERRORS.PAYMENT_AMOUNT_EMPTY),
+  handleInputErrors,
+  authenticate,
+  OrderController.registerPartialPaid
 );
 export default router;
