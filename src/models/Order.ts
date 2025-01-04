@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { IProducts_item, ProducstItemSchema } from "./Product_item";
 import { IService, ServiceSchema } from "./Service";
+import { Client } from "./Client";
 
 export interface IOrder extends Document {
   client: Types.ObjectId;
@@ -38,7 +39,7 @@ const OrderSchema: Schema = new Schema<IOrder>({
   pending_amount: {
     type: Number,
     required: true,
-    default:0
+    default: 0,
   },
   paid_amount: {
     type: Number,
@@ -65,16 +66,27 @@ const OrderSchema: Schema = new Schema<IOrder>({
 });
 
 // Middleware para actualizar el estado de pago
-OrderSchema.pre<IOrder>("save", function (next) {
+OrderSchema.pre<IOrder>("save", async function (next) {
   if (this.paid_amount >= this.total_amount) {
     this.payment_status = "pago";
     this.pending_amount = 0;
+    //Buscar el cliente y cambiar su estado de deudor a false
+    const searchClient = await Client.findById(this.client);
+    if (!searchClient) return next();
+    //---
+    searchClient.isDebtor = false;
+    await searchClient.save();
   } else if (this.paid_amount > 0) {
     this.payment_status = "parcial";
     this.pending_amount = this.total_amount - this.paid_amount;
   } else {
     this.payment_status = "pendiente";
     this.pending_amount = this.total_amount;
+    const searchClient = await Client.findById(this.client);
+    if (searchClient) {
+      searchClient.isDebtor = true;
+      await searchClient.save();
+    }
   }
   next();
 });

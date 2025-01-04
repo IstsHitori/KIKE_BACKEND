@@ -21,9 +21,6 @@ router.post(
     .isArray({ min: 1 })
     .withMessage(ORDER_ERRORS.PRODUCTS_LENGTH),
   body("total_amount").notEmpty().withMessage(ORDER_ERRORS.TOTAL_AMOUNT_EMPTY),
-  body("payment_method").notEmpty().withMessage(ORDER_ERRORS.METHOD_EMPTY),
-  handleInputErrors,
-  authenticate,
   OrderController.createOrder
 );
 router.post(
@@ -35,5 +32,12 @@ router.post(
   handleInputErrors,
   authenticate,
   OrderController.registerPartialPaid
+);
+router.patch(
+  "/mark-as-paid/:id",
+  param("id").isMongoId().withMessage(ORDER_ERRORS.ID_ORDER_NOT_VALID),
+  handleInputErrors,
+  authenticate,
+  OrderController.markAsPaid
 );
 export default router;

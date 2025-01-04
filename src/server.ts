@@ -7,7 +7,6 @@ import ClientRoutes from "./routes/ClientRoutes";
 import CategoryRoutes from "./routes/CategoryRoutes";
 import AuthRoutes from "./routes/AuthRoutes";
 import ProductRoutes from "./routes/ProductRoutes";
-import DebtorRoutes from "./routes/DebtorRoutes";
 import OrderRoutes from "./routes/OrderRoutes";
 
 dotenv.config();
@@ -20,6 +19,5 @@ app.use("/api/client", ClientRoutes);
 app.use("/api/category", CategoryRoutes);
 app.use("/api/auth", AuthRoutes);
 app.use("/api/product", ProductRoutes);
-app.use("/api/debtor", DebtorRoutes);
 app.use("/api/order", OrderRoutes);
 export default app;
